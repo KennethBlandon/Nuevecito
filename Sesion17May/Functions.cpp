@@ -49,3 +49,8 @@ void principal(){
     }
     
 }
+
+void showAges(){
+    system("cls||clear");
+    cout<<"tu edad papi"<<endl;
+}
