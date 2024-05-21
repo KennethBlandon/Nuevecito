@@ -42,6 +42,8 @@ void principal(){
         case 2:
             cout<<"Adios"<<endl;
             break;
+        case 6:
+            cout << "Adios"<< endl;
         default:
             break;
         }
@@ -52,5 +54,9 @@ void principal(){
 
 void showAges(){
     system("cls||clear");
-    cout<<"tu edad papi"<<endl;
+    cout<<"Edades: "<<endl;
+    for (int i = 0; i<pos; i++){
+        cout << ingresarEdades[i] << endl;
+    }
+    system("pause");
 }
