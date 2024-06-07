@@ -33,7 +33,7 @@ int main(int argc, char const *argv[])
     
     printf("Datos del profesor\n CIF: %s\n", teacher.cif);
     printf("Nombre completo: %s %s\n", teacher.name, teacher.lastname);
-    cout >> "Listado de estudiante\n";
+    cout << "Listado de estudiante\n";
     for (int j = 0; j < i; j++)
     {
         printf("Nombre: %s \n Apellidos: %s \n Nota: %d\n",
