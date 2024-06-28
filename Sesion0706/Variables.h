@@ -1,10 +1,8 @@
-#define MAX_REG 100
+#define MAX_REG 1000
 
-struct CIUDAD
-{
-    int ID;
-    char Nombre[50];
-    char Descripcion[100];
+typedef struct CITY{
+    int id;
+    char name[30];
+    char description[100];
 };
-
 

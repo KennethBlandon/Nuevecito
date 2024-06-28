@@ -1,146 +1,241 @@
 #include <iostream>
-#include <locale.h>
-#include "variables.h"
 #include <string.h>
+#include "variables.h"
+#include <fstream>
+#include <cstdlib>
 using namespace std;
 
-CIUDAD ciudades[MAX_REG];
-// crud//
-int obtPos(int ID);
+CITY cities[MAX_REG];
 int pos = 0;
-void agregar(CIUDAD *c);
-void editar(CIUDAD *c, int ID);
-void eliminar(int ID);
-CIUDAD buscar(int ID);
+
+//funciones 
+
+void addCity(CITY *city);
+CITY findCity(int id);
+int findPos(int id);
+void updateCity(CITY *city, int id);
+void destroyCity(int id);
+
+void pedirDato();
+void mostrarTodo();
+void editar();
+void eliminar();
+void buscarCiudad();
+void showData(CITY &city);
 int menu();
 void principal();
-void pedirDatos();
-void MostrarDatos();
-void buscarxID();
+void saveAll();
 
-void agregar(CIUDAD *c)
-{
-    ciudades[pos] = *c;
+
+//manejo de archivos
+int loadCities();
+void writeFile(const CITY &city);
+
+void addCity(CITY *city){
+    cities[pos] = *city;
     pos++;
 }
 
-CIUDAD buscar(int ID)
-{
-    CIUDAD c ;
-    c.ID = 0;
-    for (int i = 0; i < pos; i++)
-    {
-        if (ID == ciudades[i].ID)
-        {
-            return ciudades[i];
+CITY findCity(int id){
+    CITY city;
+    for(int i =0; i<pos; i++){
+        if(cities[i].id == id){
+            return cities[i];
         }
     }
-    
-    return c;
-    
+    return city;
 }
 
-int obtPos(int ID)
-{
-    for (int i = 0; i < pos; i++)
-    {
-        if (ciudades[i].ID == ID)
-        {
-            return i;
-        }
+int findPos(int id){
+    for(int i = 0; i < pos; i++){
+        if(cities[i].id == id) return i;
     }
     return -1;
 }
 
-void editar(CIUDAD *c, int ID)
-{
-    int posi = obtPos(ID);
-    strcpy(ciudades[posi].Nombre, c->Nombre);
-    strcpy(ciudades[posi].Descripcion, c->Descripcion);
+void updateCity(CITY *city, int id){
+    int position = findPos(id);
+    strcpy(cities[position].name, city->name);
+    strcpy(cities[position].description, city->description);
 }
 
-void eliminar(int ID)
-{
-    int posi = obtPos(ID);
-    for (int i = posi; i < pos - 1; i++)
-    {
-        ciudades[i] = ciudades[i + 1];
+void destroyCity(int id){
+    int position = findPos(id);
+    for(int i = position; i<pos-1; i++){
+        cities[i] = cities[i+1];
     }
+    CITY c;
+    cities[pos-1] = c;
     pos--;
 }
-int menu()
-{
+
+int menu(){
     int op;
-    cout << "Menu \n";
-    cout << "1.Agregar\n";
-    cout << "2.Editar\n";
-    cout << "3.Eliminar\n";
-    cout << "4.Buscar\n";
-    cout << "5.Mostrar Todo\n";
-    cout << "6.Salir\n";
-    cout << "Digite la opcion\n";
+    cout << "Menu\n";
+    cout << "1. Agregar \n";
+    cout << "2. Editar \n";
+    cout << "3. Eliminar\n";
+    cout << "4. Mostrar Todos \n";
+    cout << "5. Buscar \n";
+    cout << "6. Salir\n";
+    cout << "Opcion: ";
     cin >> op;
     return op;
 }
-void principal()
-{
+
+void principal(){
     int op;
-    do
-    {
+    pos = loadCities();
+    do{
         op = menu();
-        switch (op)
-        {
-        case 1:
-            pedirDatos();
-            break;
-        case 4:
-            buscarxID();
-            break;
-        case 5:
-        MostrarDatos();
-        break;
-        case 6:
-            cout << "Adios, Mi tierno\n";
-            break;
-        default:
-            cout << "No seas animal si solo hay 6\n";
-            break;
+        switch(op){
+            case 1:
+                pedirDato();
+                break;
+            case 2:
+                editar();
+                break;
+            case 3:
+                eliminar();
+                break;
+            case 4:
+                mostrarTodo();
+                break;
+            case 5:
+                buscarCiudad();
+                break;
+            case 6:
+                cout << "Adios tierno...\n";
+                break;
+            default:
+                cout << "Deberías de leer más. Solo hay 6 opciones. \n";
+                break;
         }
-    } while (op != 6);
+    }while(op != 6);
 }
 
-void pedirDatos()
-{
-    CIUDAD ciudad;
-    cout << "Datos de ciudad\n";
+void pedirDato(){
+    CITY city;
+    cout << "Datos de la Ciudad" << endl;
     cout << "ID: ";
-    cin >> ciudad.ID;
-    cout << "Nombre: ";
-    scanf(" %[^\n]", ciudad.Nombre);
-    cout << "Descripcion: ";
-    scanf(" %[^\n]", ciudad.Descripcion);
-    agregar(&ciudad);
-    cout << "Registro agregado...\n";
+    cin >> city.id;
+    if(findPos(city.id)!=-1){
+        cout << "Registro ya existe..." << endl;
+        return;
+    }
+    cout << "NOMBRE: ";
+    scanf(" %[^\n]", city.name);
+    cout << "DESCRIPCION: ";
+    scanf(" %[^\n]", city.description);
+    addCity(&city);
+    writeFile(city);
 }
 
-void MostrarDatos(){
-    for (int i = 0; i<pos; i++){
-        cout << "ID" << ciudades[i].ID << endl;
-        cout << "Nombre: " << ciudades[i].Nombre << endl;
-        cout << "Descripcion: " << ciudades[i].Descripcion << endl;
+void mostrarTodo(){
+    cout << "Mostrar Registros\n";
+    for(int i =0; i < pos; i++){
+        showData(cities[i]);
     }
 }
 
-void buscarxID(){
-    int ID;
-    cout << "Dime el ID de la ciudad a buscar: ";
-    cin >> ID;
-    CIUDAD c;
-    c = buscar(ID);
-    cout << "============================" << endl;
-    cout << c.ID << endl;
-    cout << c.Nombre << endl;
-    cout << c.Descripcion << endl;
-    cout << "============================" << endl;
+void editar(){
+    CITY city;
+    int id;
+    cout << "ID: ";
+    cin >>id;
+    if(findPos(id)==-1){
+        cout << "Registro no existe..." << endl;
+        return;
+    }
+    city = findCity(id);
+    cout << "Nombre: " ;
+    scanf(" %[^\n]", city.name);
+    cout << "Descripcion: ";
+    scanf(" %[^\n]", city.description);
+    updateCity(&city, id);
+    cout << "Registro actualizado...\n";
+    saveAll();
+}
 
+void eliminar() {
+    int id = 0;
+    if(pos == 0){
+        cout << "No hay nada que eliminar\n";
+        return;
+    }
+    cout << "ID de ciudad a eliminar: ";
+    cin >> id;
+    if(findPos(id)==-1){
+        cout << "Registro no existe..." << endl;
+        return;
+    }
+    destroyCity(id);
+    saveAll();
+    cout << "Ciudad eliminada\n";
+}
+
+void buscarCiudad() {
+    int id = 0;
+    cout << "ID de ciudad a buscar: ";
+    cin >> id;
+    if(findPos(id)==-1){
+        cout << "Registro no existe..." << endl;
+        return;
+    }
+
+    CITY city = findCity(id);
+    int x = findPos(id);
+
+    cout << "\nCiudad #" << x+1 << ":\n";
+    showData(city);
+    
+}
+
+void showData(CITY &city){
+    cout << "ID: " << city.id << endl;
+    cout << "Nombre: " << city.name << endl;
+    cout << "Descripcion: " << city.description << endl;
+}
+
+int loadCities(){
+    ifstream archivo("cities.txt");
+    if(archivo.fail()){
+        return 0;
+    }
+    int i = 0;
+    while(archivo >> cities[i].id){
+        archivo.ignore();
+        archivo.getline(cities[i].name, 30);
+        archivo.getline(cities[i].description, 100);
+        i++;
+    }
+    archivo.close();
+    return i;
+}
+void writeFile(const CITY &city){
+    ofstream archivo;
+
+    archivo.open("cities.txt", ios::app);
+
+    if(archivo.fail()){
+        cout << "No se puede abrir archivo" << endl;
+        exit(1);
+    }
+    
+    archivo << city.id << endl;
+    archivo << city.name << endl;
+    archivo << city.description << endl;
+    archivo.close();
+
+}
+
+void saveAll(){
+    ofstream archivo;
+    archivo.open("cities.txt", ios::trunc | ios::out );
+    for(int i = 0; i<pos; i++){
+        archivo << cities[i].id << endl;
+        archivo << cities[i].name << endl;
+        archivo << cities[i].description << endl;
+    }
+    archivo.close();
 }
